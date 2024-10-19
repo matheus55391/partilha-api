@@ -1,7 +1,15 @@
-﻿namespace Partilha.Domain.Entities;
+﻿using System;
+using System.Collections.Generic;
 
-public class User
+namespace Partilha.Domain.Entities
 {
-    public Guid Id { get; set; }
-    public string Email { get; set; } = string.Empty;
+    public class User
+    {
+        public Guid Id { get; set; }
+        public required string Name { get; set; }
+        public required string Email { get; set; }
+        public required string FirebaseId { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    }
 }

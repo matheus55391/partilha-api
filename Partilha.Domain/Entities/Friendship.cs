@@ -1,9 +1,16 @@
-﻿namespace Partilha.Domain.Entities;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-public class Friendship
+namespace Partilha.Domain.Entities
 {
-    public int Id { get; set; }
-    public Guid UserId { get; set; }
-    public Guid FriendId { get; set; }
-    public DateTime CreatedAt { get; set; }
+    public class Friendship
+    {
+        public Guid FriendshipId { get; set; }
+        public Guid UserId1 { get; set; }
+        public Guid UserId2 { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    }
 }
