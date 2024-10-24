@@ -14,7 +14,7 @@ public class UserRepository : IUserRepository
 
     public async Task<User?> GetByFirebaseIdAsync(string firebaseId)
     {
-        User user = await _context.Users.FirstOrDefaultAsync(u => u.FirebaseId == firebaseId);
+        User? user = await _context.Users.FirstOrDefaultAsync(u => u.FirebaseId == firebaseId);
         return user;
     }
 
