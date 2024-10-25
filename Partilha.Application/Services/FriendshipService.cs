@@ -18,14 +18,14 @@ namespace Partilha.Application.Services
         public async Task SendFriendRequestAsync(string senderFirebaseId, string receiverFirebaseId)
         {
             //retorna os 2 usuarios pelo firebaseId
-            User senderUser = await _userService.GetUserByFirebaseIdAsync(senderFirebaseId);
-            User receiverUser = await _userService.GetUserByFirebaseIdAsync(receiverFirebaseId);
+            User? senderUser = await _userService.GetUserByFirebaseIdAsync(senderFirebaseId);
+            User? receiverUser = await _userService.GetUserByFirebaseIdAsync(receiverFirebaseId);
             if(senderUser == null || receiverUser == null)
             {
                 throw new Exception("User not found");
             }
             //verificar se os 2 usuarios ja estao na lista de amigos
-            List<Friendship> friends = await this.GetFriendsAsync(senderUser.Id);
+            List<Friendship> friends = await GetFriendsAsync(senderUser.Id);
             foreach(Friendship friendship in friends)
             {
                 if(friendship.UserId2 == receiverUser.Id)
@@ -35,7 +35,7 @@ namespace Partilha.Application.Services
             }
 
             //verifica se já existe uma solicitaro de amizade
-            List<FriendRequest> requests = await this.GetPendingRequestsAsync(senderUser.Id);
+            List<FriendRequest> requests = await GetPendingRequestsAsync(senderUser.Id);
             foreach(FriendRequest request in requests)
             {
                 if(

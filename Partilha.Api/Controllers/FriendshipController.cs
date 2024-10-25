@@ -27,7 +27,7 @@ namespace Partilha.Api.Controllers
         {
             try
             {
-                string firebaseId = this.FirebaseUser!.Id;
+                string firebaseId = FirebaseUser!.Id;
                 await _friendshipService.SendFriendRequestAsync(firebaseId, data.ReceiverId);
                 return Ok("Sent friend request successfully.");
             }

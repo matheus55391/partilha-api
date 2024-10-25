@@ -2,7 +2,7 @@
 {
     public class FriendshipRequestDto
     {
-        public String ReceiverId { get; set; }
+        public string ReceiverId { get; set; }
     }
 
 }
