@@ -62,15 +62,6 @@ A **Partilha API** simplifica a gestão de despesas para facilitar a divisão de
   - Listagem de transações pode ser feita por usuário, grupo ou amigo específico.
   - O sistema exibe o saldo atualizado, indicando quanto cada amigo ou grupo deve ao usuário.
 
-## Tecnologias Utilizadas
-
-- **ASP.NET Core**: Framework backend para construção da API.
-- **Entity Framework Core**: ORM para comunicação com o banco de dados.
-- **Firebase Authentication**: Serviço de autenticação de usuários.
-- **Docker**: Para gerenciamento de contêineres.
-- **MySQL / PostgreSQL / SQL Server** (exemplo de banco): Banco de dados relacional.
-- **C#**: Linguagem principal do projeto.
-
 ## Configuração do Projeto
 
 Para aplicar migrations e atualizar o banco de dados, execute o seguinte comando:
