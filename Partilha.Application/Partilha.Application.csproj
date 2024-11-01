@@ -1,12 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\Partilha.Domain\Partilha.Domain.csproj" />
-    <ProjectReference Include="..\Partilha.Data\Partilha.Data.csproj" />
+    <Compile Remove="DTOs\**" />
+    <EmbeddedResource Remove="DTOs\**" />
+    <None Remove="DTOs\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\" />
+    <ProjectReference Include="..\Partilha.Domain\Partilha.Domain.csproj" />
+    <ProjectReference Include="..\Partilha.Data\Partilha.Data.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

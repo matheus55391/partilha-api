@@ -1,19 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using Partilha.Api.Models;
+using Partilha.Domain.Entities;
 
 namespace Partilha.Api.Controllers
 {
-
     public class BaseController : ControllerBase
     {
-        protected FirebaseUser? FirebaseUser
+        protected User? CurrentUser
         {
             get
             {
-                return HttpContext.Items["User"] as FirebaseUser;
+                return HttpContext.Items["User"] as User;
             }
         }
-
     }
 }

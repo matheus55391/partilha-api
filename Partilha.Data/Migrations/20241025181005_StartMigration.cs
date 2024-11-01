@@ -6,25 +6,41 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Partilha.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class FriendShips : Migration
+    public partial class StartMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "FriendRequests",
+                name: "Users",
                 columns: table => new
                 {
-                    RequestId = table.Column<Guid>(type: "uuid", nullable: false),
-                    SenderId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ReceiverId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Status = table.Column<int>(type: "integer", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    FirebaseId = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FriendRequests", x => x.RequestId);
+                    table.PrimaryKey("PK_Users", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FriendRequests",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    SenderId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ReceiverId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    Status = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FriendRequests", x => x.Id);
                     table.ForeignKey(
                         name: "FK_FriendRequests_Users_ReceiverId",
                         column: x => x.ReceiverId,
@@ -43,23 +59,22 @@ namespace Partilha.Data.Migrations
                 name: "Friendships",
                 columns: table => new
                 {
-                    FriendshipId = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId1 = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId2 = table.Column<Guid>(type: "uuid", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    FriendUserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Friendships", x => x.FriendshipId);
+                    table.PrimaryKey("PK_Friendships", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Friendships_Users_UserId1",
-                        column: x => x.UserId1,
+                        name: "FK_Friendships_Users_FriendUserId",
+                        column: x => x.FriendUserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Friendships_Users_UserId2",
-                        column: x => x.UserId2,
+                        name: "FK_Friendships_Users_UserId",
+                        column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -76,14 +91,26 @@ namespace Partilha.Data.Migrations
                 column: "SenderId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Friendships_UserId1",
+                name: "IX_Friendships_FriendUserId",
                 table: "Friendships",
-                column: "UserId1");
+                column: "FriendUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Friendships_UserId2",
+                name: "IX_Friendships_UserId",
                 table: "Friendships",
-                column: "UserId2");
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Email",
+                table: "Users",
+                column: "Email",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_FirebaseId",
+                table: "Users",
+                column: "FirebaseId",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -94,6 +121,9 @@ namespace Partilha.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Friendships");
+
+            migrationBuilder.DropTable(
+                name: "Users");
         }
     }
 }

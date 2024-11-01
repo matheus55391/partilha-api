@@ -11,6 +11,7 @@ using System.Text.Json;
 using Partilha.Api.Middlewares;
 using Microsoft.OpenApi.Models;
 using Partilha.Api.Utils;
+using Partilha.Data.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 var FirebaseCredentialPath = builder.Configuration["AppSettings:FirebaseCredentialPath"];
@@ -26,11 +27,15 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// Adiciona repositórios e serviços
+//Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IFriendRepository, FriendRepository>();
+builder.Services.AddScoped<IFriendRequestRepository, FriendRequestRepository>();
+
+//Services
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();
-builder.Services.AddScoped<IFriendshipService, FriendshipService>();
+builder.Services.AddScoped<IFriendService, FriendService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 
 // Lê o arquivo JSON para obter o ProjectID
 var FirebaseCredentialJson = File.ReadAllText(FirebaseCredentialPath);

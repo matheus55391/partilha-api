@@ -2,36 +2,34 @@
 using Partilha.Data;
 using Partilha.Domain.Entities;
 using Partilha.Domain.Interfaces;
+using System;
+using System.Threading.Tasks;
 
-public class UserRepository : IUserRepository
+namespace Partilha.Data.Repositories
 {
-    private readonly AppDbContext _context;
-
-    public UserRepository(AppDbContext context)
+    public class UserRepository : IUserRepository
     {
-        _context = context;
-    }
+        private readonly AppDbContext _context;
 
-    public async Task<User?> GetByFirebaseIdAsync(string firebaseId)
-    {
-        User user = await _context.Users.FirstOrDefaultAsync(u => u.FirebaseId == firebaseId);
-        return user;
-    }
+        public UserRepository(AppDbContext context)
+        {
+            _context = context;
+        }
 
-    public async Task<User?> GetByEmailAsync(string email)
-    {
-        return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
-    }
+        public async Task<User> GetByIdAsync(Guid id)
+        {
+            return await _context.Users.FindAsync(id) ?? throw new KeyNotFoundException("User not found.");
+        }
 
-    public async Task<User?> GetByIdAsync(string id)
-    {
-        Guid guid = Guid.Parse(id);
-        return await _context.Users.FirstOrDefaultAsync(u => u.Id == guid);
-    }
+        public async Task<User> GetByFirebaseIdAsync(string firebaseId)
+        {
+            return await _context.Users.SingleAsync(u => u.FirebaseId == firebaseId) ?? throw new KeyNotFoundException("User not found.");
+        }
 
-    public async Task AddAsync(User newUser)
-    {
-        await _context.Users.AddAsync(newUser);
-        await _context.SaveChangesAsync();
+        public async Task AddAsync(User user)
+        {
+            await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
+        }
     }
 }

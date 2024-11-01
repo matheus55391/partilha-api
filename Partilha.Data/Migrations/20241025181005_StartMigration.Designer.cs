@@ -12,8 +12,8 @@ using Partilha.Data;
 namespace Partilha.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241018155204_FriendShips")]
-    partial class FriendShips
+    [Migration("20241025181005_StartMigration")]
+    partial class StartMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,9 +25,30 @@ namespace Partilha.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Partilha.Domain.Entities.Friend", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("FriendUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FriendUserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Friendships", (string)null);
+                });
+
             modelBuilder.Entity("Partilha.Domain.Entities.FriendRequest", b =>
                 {
-                    b.Property<Guid>("RequestId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -50,39 +71,13 @@ namespace Partilha.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.HasKey("RequestId");
+                    b.HasKey("Id");
 
                     b.HasIndex("ReceiverId");
 
                     b.HasIndex("SenderId");
 
                     b.ToTable("FriendRequests", (string)null);
-                });
-
-            modelBuilder.Entity("Partilha.Domain.Entities.Friendship", b =>
-                {
-                    b.Property<Guid>("FriendshipId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<Guid>("UserId1")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("UserId2")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("FriendshipId");
-
-                    b.HasIndex("UserId1");
-
-                    b.HasIndex("UserId2");
-
-                    b.ToTable("Friendships", (string)null);
                 });
 
             modelBuilder.Entity("Partilha.Domain.Entities.User", b =>
@@ -127,34 +122,42 @@ namespace Partilha.Data.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
+            modelBuilder.Entity("Partilha.Domain.Entities.Friend", b =>
+                {
+                    b.HasOne("Partilha.Domain.Entities.User", "FriendUser")
+                        .WithMany()
+                        .HasForeignKey("FriendUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Partilha.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FriendUser");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Partilha.Domain.Entities.FriendRequest", b =>
                 {
-                    b.HasOne("Partilha.Domain.Entities.User", null)
+                    b.HasOne("Partilha.Domain.Entities.User", "Receiver")
                         .WithMany()
                         .HasForeignKey("ReceiverId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Partilha.Domain.Entities.User", null)
+                    b.HasOne("Partilha.Domain.Entities.User", "Sender")
                         .WithMany()
                         .HasForeignKey("SenderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
 
-            modelBuilder.Entity("Partilha.Domain.Entities.Friendship", b =>
-                {
-                    b.HasOne("Partilha.Domain.Entities.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Receiver");
 
-                    b.HasOne("Partilha.Domain.Entities.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId2")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Sender");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,6 +1,7 @@
 ﻿using Partilha.Domain.Entities;
 using Partilha.Domain.Interfaces;
 using Partilha.Application.Interfaces;
+using System.Threading.Tasks;
 
 namespace Partilha.Application.Services
 {
@@ -13,24 +14,9 @@ namespace Partilha.Application.Services
             _userRepository = userRepository;
         }
 
-        public async Task<User?> GetUserByFirebaseIdAsync(string firebaseId)
+        public async Task<User> GetUserByFirebaseIdAsync(string firebaseId)
         {
             return await _userRepository.GetByFirebaseIdAsync(firebaseId);
-        }
-
-        public async Task<User?> GetUserByIdAsync(string userId)
-        {
-            return await _userRepository.GetByIdAsync(userId);
-        }
-
-        public async Task<User?> GetUserByEmailAsync(string email)
-        {
-            return await _userRepository.GetByEmailAsync(email);
-        }
-
-        public async Task CreateUserAsync(User user)
-        {
-            await _userRepository.AddAsync(user);
         }
     }
 }

@@ -1,123 +1,96 @@
 # PartilhaAPI
 
-O **PartilhaAPI** é um aplicativo projetado para facilitar a divisão de contas entre amigos. 
-O Partilha permite que os usuários cadastrem amigos, registrem transações e acompanhem quanto cada um deve.
+A **Partilha API** é a camada backend de uma aplicação projetada para gerenciamento de usuários e interações sociais, incluindo funcionalidades de amizade, como envio e recebimento de convites e remoção de amigos. A arquitetura segue o padrão Domain-Driven Design (DDD), utilizando ASP.NET Core e Firebase para autenticação.
 
 ## Funcionalidades
 
-- **Cadastro de Usuários**: Usuários podem se registrar no aplicativo.
-- **Adição de Amigos**: Usuários podem adicionar outros usuários como amigos.
-- **Registro de Transações**: Usuários podem criar transações, definindo quem pagou e quem deve.
-- **Divisão Igualitária**: O valor total de cada transação é dividido igualmente entre todos os membros selecionados na transação.
-- **Visualização de Saldos**: Usuários podem ver o total que devem e quanto cada amigo deve a eles.
+A **Partilha API** simplifica a gestão de despesas para facilitar a divisão de custos entre amigos.
+
+### 📋 Cadastro e Perfis
+
+- **Cadastro Rápido**: Registre usuários e gerencie perfis.
+- **Login Seguro**: Autenticação com Firebase para acesso protegido.
+- **Consulta de Perfil**: Encontre informações de qualquer usuário pelo ID.
+
+### 🤝 Gerenciamento de Amizades
+
+- **Adicionar Amigos**: Envie e receba convites de amizade.
+- **Gerenciar Convites**: Aceite ou recuse solicitações facilmente.
+- **Lista de Amigos**: Veja todos os amigos adicionados.
+- **Remover Amigos**: Exclua contatos indesejados com um clique.
+
+### 💰 Controle de Despesas e Saldos
+
+- **Criação de Transações**: Registre quem pagou e quem deve.
+- **Divisão Automática**: Divida as despesas de forma justa entre os participantes.
+- **Visualização de Saldos**: Acompanhe o quanto você deve e quem está em dívida com você.
+
+### 🔒 Segurança e Confiabilidade
+
+- **Autenticação por Middleware**: Bloqueia acesso a usuários não autorizados.
+- **Erros Padronizados**: Retorna mensagens claras quando algo não é encontrado.
+
+## Tecnologias Utilizadas
+
+- **ASP.NET Core**: Framework backend para construção da API.
+- **Entity Framework Core**: ORM para comunicação com o banco de dados.
+- **Firebase Authentication**: Serviço de autenticação de usuários.
+- **Docker**: Para gerenciamento de contêineres.
+- **MySQL / PostgreSQL / SQL Server** (exemplo de banco): Banco de dados relacional.
+- **C#**: Linguagem principal do projeto.
 
 ## Regras de Negócio
 
-- Os usuários podem emprestar ou pegar emprestado de outros usuários.
-- Cada transação é registrada com um pagador e uma lista de membros envolvidos.
-- O sistema calcula automaticamente quanto cada usuário deve aos outros com base nas transações registradas.
-- Não há opção de quitar dívidas; o sistema apenas registra transações.
+- **Usuários e Amizades**:
 
-## Entidades
+  - Um usuário pode ter múltiplos amigos e ser amigo de vários usuários.
+  - É possível adicionar, buscar, listar e remover amigos.
 
-### User
-Representa um usuário do aplicativo.
+- **Transações**:
 
-- **Id**: UUID (chave primária)
-- **Name**: Nome do usuário
-- **Email**: Email único do usuário
+  - Cada transação tem um pagador (que pode ser o próprio criador ou outro usuário) e uma lista de participantes ou grupos.
+  - Ao criar uma transação, o valor, descrição e participantes são definidos.
+  - O sistema permite dividir o valor proporcionalmente entre os participantes.
+  - Não há funcionalidade para "quitar dívidas"; apenas novas transações registram o saldo entre usuários.
 
-### Friend
-Representa a relação de amizade entre usuários.
+- **Grupos**:
 
-- **Id**: UUID (chave primária)
-- **UserId**: UUID (FK do usuário que adicionou o amigo)
-- **FriendId**: UUID (FK do amigo adicionado)
+  - Grupos reúnem usuários que participaram de eventos conjuntos e compartilharam despesas.
+  - Transações podem ser vinculadas a um grupo, facilitando o controle coletivo das dívidas.
 
-### Transaction
-Representa uma transação registrada por um usuário.
+- **Consulta de Histórico e Saldos**:
+  - Listagem de transações pode ser feita por usuário, grupo ou amigo específico.
+  - O sistema exibe o saldo atualizado, indicando quanto cada amigo ou grupo deve ao usuário.
 
-- **Id**: UUID (chave primária)
-- **Description**: Descrição da transação (ex: "Uber")
-- **TotalAmount**: Valor total da transação
-- **CreatedAt**: Data de criação da transação
-- **CreatedById**: UUID (FK do usuário que criou a transação)
-- **PaidById**: UUID (FK do usuário que pagou a transação)
+## Tecnologias Utilizadas
 
-### TransactionMember
-Representa cada membro envolvido em uma transação.
+- **ASP.NET Core**: Framework backend para construção da API.
+- **Entity Framework Core**: ORM para comunicação com o banco de dados.
+- **Firebase Authentication**: Serviço de autenticação de usuários.
+- **Docker**: Para gerenciamento de contêineres.
+- **MySQL / PostgreSQL / SQL Server** (exemplo de banco): Banco de dados relacional.
+- **C#**: Linguagem principal do projeto.
 
-- **Id**: UUID (chave primária)
-- **TransactionId**: UUID (FK referenciando Transaction)
-- **UserId**: UUID (FK referenciando User)
-- **AmountOwed**: Valor que o membro deve
+## Configuração do Projeto
 
-## Estrutura do Banco de Dados
+Para aplicar migrations e atualizar o banco de dados, execute o seguinte comando:
 
-A estrutura do banco de dados pode ser visualizada no [dbdiagram.io](https://dbdiagram.io). 
-Abaixo está o código utilizado para criar o diagrama:
-
-```sql
-Table User {
-  Id uuid [pk, unique]
-  Name varchar(100) [not null]
-  Email varchar(255) [not null, unique]
-  FriendCode uuid [unique]
-}
-
-Table Friend {
-  Id uuid [pk, unique]
-  UserId uuid [not null]
-  FriendId uuid [not null]
-}
-
-Table Transaction {
-  Id uuid [pk, unique]
-  Description varchar(255) [not null]
-  TotalAmount decimal(18, 2) [not null]
-  CreatedAt datetime [default: `now()`]
-  CreatedById uuid [not null]
-  PaidById uuid [not null]
-}
-
-Table TransactionMember {
-  Id uuid [pk, unique]
-  TransactionId uuid [not null]
-  UserId uuid [not null]
-  AmountOwed decimal(18, 2) [not null]
-}
-
-// Relacionamentos
-Ref: Friend.UserId > User.Id
-Ref: Friend.FriendId > User.Id
-Ref: Transaction.CreatedById > User.Id
-Ref: Transaction.PaidById > User.Id
-Ref: TransactionMember.TransactionId > Transaction.Id
-Ref: TransactionMember.UserId > User.Id
+```bash
+dotnet ef migrations add StartMigration --project Partilha.Data --startup-project Partilha.Api
+dotnet ef database update --project Partilha.Data --startup-project Partilha.Api
 ```
 
-### Tecnologias Utilizadas
-- .NET Core: Para o desenvolvimento da API.
-- Entity Framework Core: Para o gerenciamento do banco de dados.
-- PostgreSQL: Para armazenamento de dados.
-- Firebase Authentication: Para autenticação de usuários.
+## Contribuição
 
-### Instalação
-- Clone o repositório.
-- Configure a string de conexão para o PostgreSQL no arquivo appsettings.json.
-- Execute as migrações do Entity Framework para criar o banco de dados.
-- Inicie a aplicação.
-
-### Contribuição
 - Contribuições são bem-vindas! Sinta-se à vontade para abrir um pull request ou relatar problemas.
 
-### Licença
-- Este projeto está licenciado sob a MIT License - veja o arquivo LICENSE para mais detalhes.
+### Contribuidores
 
+- [matheus55391](https://github.com/matheus55391)
+- [emersonv25](https://github.com/emersonv25)
 
-### entity framework commands
+## Licença
 
-```
-Add-Migration "StartMigration"
-Update-Database
-```
+Este projeto é licenciado sob a **AGPL-3.0 License**. Você é livre para usar, modificar e distribuir este software, desde que qualquer distribuição do código modificado também seja licenciada sob a AGPL-3.0.
+
+Para mais detalhes, consulte o [texto completo da licença AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html).

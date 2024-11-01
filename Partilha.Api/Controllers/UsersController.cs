@@ -1,19 +1,29 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Partilha.Api.Models;
 using Partilha.Domain.Entities;
-using Partilha.Application.Interfaces;
-using Partilha.Api.DTOs;
+using Partilha.Domain.Interfaces;
 
-namespace Partilha.Api.Controllers;
-
-[ApiController]
-[Route("api/users")]
-public class UsersController : BaseController
+namespace Partilha.Api.Controllers
 {
-    private readonly IUserService _userService;
-
-    public UsersController(IUserService userService)
+    [ApiController]
+    [Route("[controller]")]
+    public class UsersController : BaseController
     {
-        _userService = userService;
-    }
+        private readonly IUserRepository _userRepository;
 
+        public UsersController(IUserRepository userRepository)
+        {
+            _userRepository = userRepository;
+        }
+
+        [HttpGet("{userId}/profile")]
+        [Authorize]
+        public async Task<IActionResult> GetUserProfile(Guid userId)
+        {
+            return Ok();
+        }
+
+        // Outros métodos ainda não implementados
+    }
 }
