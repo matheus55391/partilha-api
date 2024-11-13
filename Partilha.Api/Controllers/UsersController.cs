@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Ecommerce.API.Models.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Partilha.Api.Models;
 using Partilha.Application.Interfaces;
@@ -9,6 +10,7 @@ using Partilha.Domain.Interfaces;
 namespace Partilha.Api.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("[controller]")]
     public class UsersController : BaseController
     {
@@ -33,6 +35,21 @@ namespace Partilha.Api.Controllers
         {
             var user = await _userService.GetUserByFirebaseIdAsync(firebaseid);
             return Ok(user);
+        }
+
+
+        [HttpGet()]
+        public async Task<IActionResult> GetLoggedUser()
+        {
+            var user = CurrentUser;
+            return Ok();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateUser([FromBody] UserDto userDto)
+        {
+            var createdUser = await _userService.CreateUser(userDto, CurrentUser.FirebaseId);
+            return new OkObjectResult(createdUser);
         }
 
         // Outros métodos ainda não implementados

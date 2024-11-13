@@ -70,7 +70,7 @@ namespace Partilha.Api.Middlewares
         private static async Task RespondUnauthorizedAsync(HttpContext context, string message)
         {
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            await context.Response.WriteAsync(message);
+            await context.Response.WriteAsJsonAsync(message);
         }
     }
 }

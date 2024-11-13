@@ -6,7 +6,7 @@ namespace Partilha.Api.Controllers
 {
     public class BaseController : ControllerBase
     {
-        protected User? CurrentUser
+        protected User CurrentUser
         {
             get
             {
