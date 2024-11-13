@@ -29,12 +29,7 @@ namespace Partilha.Application.Services
             if (existUser != null)
                 throw new Exception("User already exists");
 
-            var newUser = new User
-            {
-                Email = userDto.Email,
-                Name = userDto.Name,
-                FirebaseId = firebaseUid
-            };
+            var newUser = new CreateUser(userDto, firebaseUid);
 
             await _userRepository.AddAsync(newUser);
 
