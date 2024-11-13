@@ -49,8 +49,7 @@ namespace Partilha.Api.Middlewares
             await _next(context);
         }
 
-        private static string ExtractToken(string token) =>
-    token.Replace("Bearer ", string.Empty).Trim();
+        private static string ExtractToken(string token) => token.Replace("Bearer ", string.Empty).Trim();
 
         private async Task<FirebaseUser?> AuthenticateTokenAsync(string tokenValue)
         {

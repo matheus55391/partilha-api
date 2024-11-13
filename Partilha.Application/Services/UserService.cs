@@ -18,5 +18,9 @@ namespace Partilha.Application.Services
         {
             return await _userRepository.GetByFirebaseIdAsync(firebaseId);
         }
+        public async Task<User> GetUserByIdAsync(Guid id)
+        {
+            return await _userRepository.GetByIdAsync(id);
+        }
     }
 }
