@@ -1,0 +1,6 @@
+# Exemplo de configuração para ambiente local com Docker
+
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/partilha_dev
+JWT_SECRET=sua_chave_secreta_jwt
+GOOGLE_CLIENT_ID=sua_google_client_id
+GOOGLE_CLIENT_SECRET=sua_google_client_secret
