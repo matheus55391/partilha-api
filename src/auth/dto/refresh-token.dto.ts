@@ -16,4 +16,7 @@ export class RefreshTokenDto {
 export class RefreshTokenResponseDto {
   @ApiProperty({ example: 'jwt_access_token' })
   access_token: string;
+
+  @ApiProperty({ example: 'jwt_refresh_token' })
+  refresh_token: string;
 }

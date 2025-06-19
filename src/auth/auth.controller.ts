@@ -1,11 +1,10 @@
-import { Controller, Post, Body, Get, Req, Param, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiParam } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { RegisterDto, RegisterResponseDto } from './dto/register.dto';
 import { LoginDto, LoginResponseDto } from './dto/login.dto';
 import { RefreshTokenDto, RefreshTokenResponseDto } from './dto/refresh-token.dto';
-import { AuthGuard } from '@nestjs/passport';
-import { Request } from 'express';
+import { RegisterDto, RegisterResponseDto } from './dto/register.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -44,11 +43,11 @@ export class AuthController {
     // Redireciona para o provedor OAuth
   }
 
-  @Get(':provider/callback')
-  @ApiOperation({ summary: 'Callback do login social' })
-  @ApiParam({ name: 'provider', example: 'google', description: 'Nome do provedor OAuth (google, facebook, github, etc)' })
-  @UseGuards(AuthGuard())
-  async socialCallback(@Param('provider') provider: string, @Req() req: Request): Promise<LoginResponseDto> {
-    return this.authService.loginSocial(req.user, provider);
-  }
+  // @Get(':provider/callback')
+  // @ApiOperation({ summary: 'Callback do login social' })
+  // @ApiParam({ name: 'provider', example: 'google', description: 'Nome do provedor OAuth (google, facebook, github, etc)' })
+  // @UseGuards(AuthGuard())
+  // async socialCallback(@Param('provider') provider: string, @Req() req: Request): Promise<LoginResponseDto> {
+  //   return this.authService.loginSocial(req.user, provider);
+  // }
 }
