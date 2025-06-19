@@ -68,5 +68,17 @@ export class AuthService {
     }
   }
 
+  async loginSocial(user: any, provider: string): Promise<LoginResponseDto> {
+    // Aqui você pode adicionar lógica extra para diferentes provedores, se necessário
+    // Por padrão, gera access/refresh token para o usuário autenticado pelo provider
+    const payload = { sub: user.id, email: user.email, provider };
+    const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
+    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+    return {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    };
+  }
+
   // Métodos para Google OAuth serão implementados na strategy
 }
