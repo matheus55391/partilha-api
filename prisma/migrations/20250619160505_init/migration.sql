@@ -38,6 +38,7 @@ CREATE TABLE "GroupMember" (
     "userId" TEXT NOT NULL,
     "groupId" TEXT NOT NULL,
     "joinedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "role" TEXT NOT NULL DEFAULT 'MEMBER',
 
     CONSTRAINT "GroupMember_pkey" PRIMARY KEY ("id")
 );
