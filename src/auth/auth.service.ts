@@ -32,8 +32,12 @@ export class AuthService {
       throw new Error('Invalid credentials');
     }
 
-    const token = this.jwtService.sign({ userId: user.id });
-    return { token };
+    const token = this.jwtService.sign({
+      sub: user.id,
+      email: user.email,
+      name: user.name,
+    });
+    return { access_token: token };
   }
 
   async register(registerDto: CreateUserDto) {
@@ -42,7 +46,7 @@ export class AuthService {
       ...registerDto,
       password: hashedPassword,
     });
-    const token = this.jwtService.sign({ userId: user.id });
-    return { token };
+
+    return { user };
   }
 }
