@@ -9,7 +9,7 @@ import type { Cache } from 'cache-manager';
 
 @Injectable()
 export class UsersService {
- constructor(
+  constructor(
     private prismaService: PrismaService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
@@ -18,7 +18,13 @@ export class UsersService {
     const hashedPassword = bcrypt.hashSync(createUserDto.password, 10);
     const newUser = await this.prismaService.user.create({
       data: { ...createUserDto, password: hashedPassword },
-      select: { id: true, name: true, email: true, createdAt: true, updatedAt: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
     await this.cacheManager.del('users:all');
     return newUser;
@@ -26,11 +32,18 @@ export class UsersService {
 
   async findAll(): Promise<Omit<User, 'password'>[]> {
     const cacheKey = 'users:all';
-    const cached = await this.cacheManager.get<Omit<User, 'password'>[]>(cacheKey);
+    const cached =
+      await this.cacheManager.get<Omit<User, 'password'>[]>(cacheKey);
     if (cached) return cached;
 
     const users = await this.prismaService.user.findMany({
-      select: { id: true, name: true, email: true, createdAt: true, updatedAt: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
 
     await this.cacheManager.set(cacheKey, users, 60);
@@ -75,5 +88,17 @@ export class UsersService {
         updatedAt: true,
       },
     });
+  }
+
+  async updatePassword(userId: string, password: string) {
+    const hashedPassword = bcrypt.hashSync(password, 10);
+    return this.prismaService.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+  }
+
+  async findByEmail(email: string) {
+    return this.prismaService.user.findUnique({ where: { email } });
   }
 }

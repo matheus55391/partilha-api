@@ -15,3 +15,9 @@ services:
     command: redis-server --requirepass partilha
     ports:
       - "6379:6379"
+  mailhog:
+    image: mailhog/mailhog
+    restart: always
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # Web UI

@@ -1,2 +1,4 @@
 TOKEN_SECRET="change-me-very-secret"
 DATABASE_URL="postgresql://postgres:root@localhost:5432/partilha_db?schema=public"
+REDIS_URL="redis://:partilha@localhost:6379"
+CACHE_TTL=3600
