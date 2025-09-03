@@ -1,8 +1,17 @@
+volumes:
+  pg_data:
+
+
 services:
-  db:
+  postgres:
     image: postgres:16.8-alpine3.20
     environment:
       POSTGRES_PASSWORD: root
       POSTGRES_DB: partilha_db
     ports:
       - 5432:5432
+  redis:
+    image: redis:alpine
+    command: redis-server --requirepass partilha
+    ports:
+      - "6379:6379"

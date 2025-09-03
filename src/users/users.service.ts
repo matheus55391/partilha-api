@@ -1,42 +1,40 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
+
 @Injectable()
 export class UsersService {
-  constructor(private prismaService: PrismaService) {}
+ constructor(
+    private prismaService: PrismaService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {}
 
   async create(createUserDto: CreateUserDto): Promise<Omit<User, 'password'>> {
-    const newUser: Omit<User, 'password'> =
-      await this.prismaService.user.create({
-        data: {
-          ...createUserDto,
-          password: bcrypt.hashSync(createUserDto.password, 10),
-        },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-      });
-
+    const hashedPassword = bcrypt.hashSync(createUserDto.password, 10);
+    const newUser = await this.prismaService.user.create({
+      data: { ...createUserDto, password: hashedPassword },
+      select: { id: true, name: true, email: true, createdAt: true, updatedAt: true },
+    });
+    await this.cacheManager.del('users:all');
     return newUser;
   }
 
-  async findAll() {
-    return this.prismaService.user.findMany({
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        createdAt: true,
-        updatedAt: true,
-      },
+  async findAll(): Promise<Omit<User, 'password'>[]> {
+    const cacheKey = 'users:all';
+    const cached = await this.cacheManager.get<Omit<User, 'password'>[]>(cacheKey);
+    if (cached) return cached;
+
+    const users = await this.prismaService.user.findMany({
+      select: { id: true, name: true, email: true, createdAt: true, updatedAt: true },
     });
+
+    await this.cacheManager.set(cacheKey, users, 60);
+    return users;
   }
 
   async findOne(id: string) {
