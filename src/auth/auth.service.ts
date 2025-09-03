@@ -1,4 +1,3 @@
-import { MailerService } from '@nestjs-modules/mailer';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
   BadRequestException,
@@ -10,8 +9,8 @@ import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import type { Cache } from 'cache-manager';
-import { randomUUID } from 'crypto';
 import { LoginDto } from 'src/auth/dto/login.dto';
+import { MailService } from 'src/mail/mail.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
@@ -22,8 +21,8 @@ export class AuthService {
     private prismaService: PrismaService,
     private usersService: UsersService,
     private jwtService: JwtService,
+    private mailService: MailService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
-    private mailerService: MailerService,
   ) {}
 
   async login(loginDto: LoginDto) {
@@ -71,13 +70,7 @@ export class AuthService {
   async requestPasswordReset(email: string) {
     const user = await this.prismaService.user.findUnique({ where: { email } });
     if (!user) throw new Error('User not found');
-    const token = randomUUID();
-    await this.cacheManager.set(`pwd-reset:${token}`, user.id, 600000);
-    await this.mailerService.sendMail({
-      to: email,
-      subject: 'Reset your password',
-      text: `Use this token to reset your password: ${token}`,
-    });
+    await this.mailService.sendToken(user.id, email);
     return { message: 'Password reset email sent' };
   }
 
