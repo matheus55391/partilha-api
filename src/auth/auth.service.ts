@@ -1,77 +1,78 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
   BadRequestException,
   ConflictException,
   Inject,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import type { Cache } from 'cache-manager';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { LoginDto } from 'src/auth/dto/login.dto';
 import { MailService } from 'src/mail/mail.service';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private prismaService: PrismaService,
     private usersService: UsersService,
     private jwtService: JwtService,
     private mailService: MailService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
+  private getUserCacheKey(email: string) {
+    return `user:${email}`;
+  }
+
   async login(loginDto: LoginDto) {
-    const cacheKey = `user:${loginDto.email}`;
+    const cacheKey = this.getUserCacheKey(loginDto.email);
     let user = await this.cacheManager.get<User>(cacheKey);
+
     if (!user) {
-      const foundUser = await this.prismaService.user.findUnique({
-        where: { email: loginDto.email },
-      });
-      if (!foundUser) throw new Error('Invalid credentials');
+      const foundUser = await this.usersService.findByEmail(loginDto.email);
+      if (!foundUser) throw new BadRequestException('Credenciais inválidas');
       user = foundUser;
       await this.cacheManager.set(cacheKey, user, 300);
     }
+
     const isPasswordValid = bcrypt.compareSync(
       loginDto.password,
       user.password,
     );
-    if (!isPasswordValid) throw new Error('Invalid credentials');
+    if (!isPasswordValid)
+      throw new BadRequestException('Credenciais inválidas');
+
     const token = this.jwtService.sign({
       sub: user.id,
       email: user.email,
       name: user.name,
     });
+
     return { access_token: token };
   }
 
   async register(registerDto: CreateUserDto) {
-    const existingUser = await this.prismaService.user.findUnique({
-      where: { email: registerDto.email },
-    });
-
+    const existingUser = await this.usersService.findByEmail(registerDto.email);
     if (existingUser) {
       throw new ConflictException('Email já cadastrado');
     }
-    const hashedPassword = bcrypt.hashSync(registerDto.password, 10);
-    const user = await this.usersService.create({
-      ...registerDto,
-      password: hashedPassword,
-    });
 
-    await this.cacheManager.set(`user:${user.email}`, user, 300);
+    const user = await this.usersService.create(registerDto);
+
+    await this.cacheManager.set(this.getUserCacheKey(user.email), user, 300);
     return { user };
   }
 
   async requestPasswordReset(email: string) {
-    const user = await this.prismaService.user.findUnique({ where: { email } });
-    if (!user) throw new Error('User not found');
+    const user = await this.usersService.findByEmail(email);
+    if (!user) throw new NotFoundException('Usuário não encontrado');
+
     await this.mailService.sendToken(user.id, email);
-    return { message: 'Password reset email sent' };
+    return { message: 'Email de redefinição de senha enviado' };
   }
 
   async resetPassword(token: string, newPassword: string) {
@@ -81,13 +82,11 @@ export class AuthService {
     }
 
     const hashedPassword = bcrypt.hashSync(newPassword, 10);
-    const user = await this.prismaService.user.update({
-      where: { id: userId },
-      data: { password: hashedPassword },
-    });
+    const user = await this.usersService.updatePassword(userId, hashedPassword);
 
+    // limpar cache
     await this.cacheManager.del(`pwd-reset:${token}`);
-    await this.cacheManager.del(`user:${user.email}`);
+    await this.cacheManager.del(this.getUserCacheKey(user.email));
 
     return { message: 'Senha atualizada com sucesso' };
   }
