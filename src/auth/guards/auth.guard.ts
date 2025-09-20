@@ -4,7 +4,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Request } from 'express';
+import { FastifyRequest } from 'fastify';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -15,8 +15,8 @@ export class AuthGuard implements CanActivate {
     private prismaService: PrismaService,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request: Request = context.switchToHttp().getRequest();
-    const authHeader = request.headers['authorization'];
+    const request: FastifyRequest = context.switchToHttp().getRequest();
+    const authHeader = request.headers['authorization'] as string;
     const token = authHeader?.split(' ')[1];
     if (!token) throw new UnauthorizedException('No token provided');
 
